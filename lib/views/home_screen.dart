@@ -52,39 +52,51 @@ class HomeScreen extends StatelessWidget {
 
           // 2. Transaction List Section
           Expanded(
-            child: ListView.builder(
-              itemCount: viewModel.transactions.length,
-              itemBuilder: (context, index) {
-                final tx = viewModel.transactions[index];
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: tx.isIncome ? Colors.green[100] : Colors.red[100],
-                    child: Icon(
-                      tx.isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+  child: viewModel.transactions.isEmpty
+      ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.receipt_long, size: 80, color: Colors.grey[300]),
+              const SizedBox(height: 10),
+              const Text("No transactions yet!", 
+                         style: TextStyle(color: Colors.grey, fontSize: 16)),
+            ],
+          ),
+        )
+      : ListView.builder(
+          itemCount: viewModel.transactions.length,
+          itemBuilder: (context, index) {
+            final tx = viewModel.transactions[index];
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundColor: tx.isIncome ? Colors.green[100] : Colors.red[100],
+                child: Icon(
+                  tx.isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                  color: tx.isIncome ? Colors.green : Colors.red,
+                ),
+              ),
+              title: Text(tx.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text("${tx.date.day}/${tx.date.month}/${tx.date.year}"),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "${tx.isIncome ? '+' : '-'}\$${tx.amount.toStringAsFixed(2)}",
+                    style: TextStyle(
                       color: tx.isIncome ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  title: Text(tx.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text("${tx.date.day}/${tx.date.month}/${tx.date.year}"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "${tx.isIncome ? '+' : '-'}\$${tx.amount.toStringAsFixed(2)}",
-                        style: TextStyle(
-                          color: tx.isIncome ? Colors.green : Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                        onPressed: () => viewModel.deleteTransaction(tx.id),
-                      ),
-                    ],
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                    onPressed: () => viewModel.deleteTransaction(tx.id),
                   ),
-                );
-              },
-            ),
+                ],
+              ),
+            );
+          },
+        ),
           ),
         ],
       ),
@@ -112,6 +124,7 @@ class HomeScreen extends StatelessWidget {
   final titleController = TextEditingController();
   final amountController = TextEditingController();
   bool isIncome = true; // Default to income
+  DateTime selectedDate = DateTime.now();
 
   showModalBottomSheet(
     context: context,
@@ -125,6 +138,7 @@ class HomeScreen extends StatelessWidget {
           bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           left: 20, right: 20, top: 20,
         ),
+
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -140,6 +154,32 @@ class HomeScreen extends StatelessWidget {
               decoration: const InputDecoration(labelText: 'Amount', border: OutlineInputBorder(), prefixText: '\$ '),
               keyboardType: TextInputType.number,
             ),
+
+              const SizedBox(height: 10),
+              // Add this widget inside the Column
+              ListTile(
+                title: Text(
+                  "Date: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                ),
+                leading: const Icon(Icons.calendar_today),
+                trailing: const Text(
+                  "Select",
+                  style: TextStyle(color: Colors.blue),
+                ),
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (picked != null) {
+                    setModalState(() => selectedDate = picked);
+                  }
+                },
+              ),
+
+
             SwitchListTile(
               title: Text(isIncome ? "Type: Income" : "Type: Expense"),
               subtitle: const Text("Toggle to switch type"),
@@ -171,6 +211,8 @@ class HomeScreen extends StatelessWidget {
                   context.read<ExpenseViewModel>().addTransaction(tx);
                   Navigator.pop(context);
                 },
+
+                
                 child: const Text("Save Transaction"),
               ),
             ),

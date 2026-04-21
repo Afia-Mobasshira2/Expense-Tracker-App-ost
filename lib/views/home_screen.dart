@@ -107,47 +107,77 @@ class HomeScreen extends StatelessWidget {
   }
 
   // A simple dialog to handle the "Add Transaction" form
+  
   void _showAddTransactionDialog(BuildContext context) {
-    final titleController = TextEditingController();
-    final amountController = TextEditingController();
-    bool isIncome = false;
+  final titleController = TextEditingController();
+  final amountController = TextEditingController();
+  bool isIncome = true; // Default to income
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => Padding(
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) => StatefulBuilder( // Allows the switch to update UI
+      builder: (context, setModalState) => Padding(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           left: 20, right: 20, top: 20,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
-            TextField(controller: amountController, decoration: const InputDecoration(labelText: 'Amount'), keyboardType: TextInputType.number),
+            Text("Add New Transaction", style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 15),
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: amountController,
+              decoration: const InputDecoration(labelText: 'Amount', border: OutlineInputBorder(), prefixText: '\$ '),
+              keyboardType: TextInputType.number,
+            ),
             SwitchListTile(
-              title: const Text("Is this Income?"),
-              value: isIncome, 
-              onChanged: (val) { /* Note: Needs Statefulness inside Dialog or a simpler toggle */ }
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final tx = Transaction(
-                  id: DateTime.now().toString(),
-                  title: titleController.text,
-                  amount: double.tryParse(amountController.text) ?? 0,
-                  date: DateTime.now(),
-                  isIncome: true, // Simplified for this example
-                );
-                context.read<ExpenseViewModel>().addTransaction(tx);
-                Navigator.pop(context);
+              title: Text(isIncome ? "Type: Income" : "Type: Expense"),
+              subtitle: const Text("Toggle to switch type"),
+              value: isIncome,
+              activeColor: Colors.green,
+              onChanged: (val) {
+                setModalState(() => isIncome = val);
               },
-              child: const Text("Save"),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+                onPressed: () {
+                  if (titleController.text.isEmpty || amountController.text.isEmpty) return;
+
+                  final tx = Transaction(
+                    id: DateTime.now().toString(),
+                    title: titleController.text,
+                    amount: double.tryParse(amountController.text) ?? 0.0,
+                    date: DateTime.now(),
+                    isIncome: isIncome,
+                  );
+
+                  context.read<ExpenseViewModel>().addTransaction(tx);
+                  Navigator.pop(context);
+                },
+                child: const Text("Save Transaction"),
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+ }
 }

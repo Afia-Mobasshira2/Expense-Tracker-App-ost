@@ -1,3 +1,4 @@
+import 'package:expense_tracker_app_ost/views/widgets/dashboard_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/expense_viewmodel.dart';
@@ -21,39 +22,13 @@ class HomeScreen extends StatelessWidget {
           // 1. Dashboard Section
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Card(
-              elevation: 0,
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    const Text("Current Balance"),
-                    Text(
-                      "\$${viewModel.totalBalance.toStringAsFixed(2)}",
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onPrimaryContainer,
-                          ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _balanceStat("Income", viewModel.totalIncome, Colors.green),
-                        _balanceStat("Expense", viewModel.totalExpense, Colors.red),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            child: DashboardCard(),
           ),
 
           // 2. Transaction List Section
           Expanded(
-  child: viewModel.transactions.isEmpty
-      ? Center(
+        child: viewModel.transactions.isEmpty
+           ? Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -246,7 +221,7 @@ class HomeScreen extends StatelessWidget {
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
                 onPressed: () {
-  // 1. Better Validation with SnackBar feedback
+                     // 1. Better Validation with SnackBar feedback
                     if (titleController.text.trim().isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Please enter a title")),

@@ -58,26 +58,41 @@ class DashboardCard extends StatelessWidget {
             const SizedBox(height: 20),
 
             // --- PROGRESS BAR (Visual UI Upgrade) ---
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: LinearProgressIndicator(
-                value: spendingRatio,
-                minHeight: 10,
-                backgroundColor: Colors.white.withOpacity(0.2),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  spendingRatio > 0.8 ? Colors.orangeAccent : Colors.greenAccent,
-                ),
-              ),
+           // --- ANIMATED PROGRESS BAR (The Extraordinary Touch) ---
+TweenAnimationBuilder<double>(
+  duration: const Duration(milliseconds: 800), // How fast it slides
+  curve: Curves.easeOutCubic, // Smooth "slow down" effect
+  tween: Tween<double>(begin: 0, end: spendingRatio),
+  builder: (context, value, child) {
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: LinearProgressIndicator(
+            value: value, // Use the animated 'value' here
+            minHeight: 12, // Slightly thicker for a modern look
+            backgroundColor: Colors.white.withOpacity(0.2),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              // Logic: Turns Red if you spend more than you earn
+              value >= 1.0 
+                  ? Colors.redAccent 
+                  : (value > 0.8 ? Colors.orangeAccent : Colors.greenAccent),
             ),
-            const SizedBox(height: 8),
-            Text(
-              "${(spendingRatio * 100).toStringAsFixed(0)}% of income utilized",
-              style: TextStyle(
-                fontSize: 10, 
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
-              ),
-            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "${(value * 100).toStringAsFixed(0)}% of income utilized",
+          style: TextStyle(
+            fontSize: 11, 
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  },
+),
 
             const SizedBox(height: 24),
 

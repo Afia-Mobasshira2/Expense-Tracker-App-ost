@@ -88,15 +88,63 @@ class HomeScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                    onPressed: () => viewModel.deleteTransaction(tx.id),
-                  ),
-                ],
-              ),
+                         
+                         
+                             IconButton(
+                                icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                // 1. Trigger the confirmation dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text("Delete Transaction"),
+                                    content: const Text(
+                                      "Are you sure you want to remove this item? This action cannot be undone.",
+                                    ),
+                                    actions: [
+                                      // 2. The 'Cancel' button just closes the dialog
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text("Cancel"),
+                                      ),
+                                      // 3. The 'Delete' button calls the ViewModel and then closes the dialog
+                                      TextButton(
+                                        onPressed: () {
+                                          viewModel.deleteTransaction(tx.id);
+                                          Navigator.pop(
+                                            ctx,
+                                          ); // Close dialog after deleting
+
+                                          // Optional: Show a quick confirmation message at the bottom
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                "Transaction deleted",
+                                              ),
+                                              duration: Duration(seconds: 2),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text(
+                                          "Delete",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
             );
-          },
-        ),
+           },
+           ),
           ),
         ],
       ),
@@ -198,19 +246,38 @@ class HomeScreen extends StatelessWidget {
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
                 onPressed: () {
-                  if (titleController.text.isEmpty || amountController.text.isEmpty) return;
+  // 1. Better Validation with SnackBar feedback
+                    if (titleController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Please enter a title")),
+                      );
+                      return;
+                    }
 
-                  final tx = Transaction(
-                    id: DateTime.now().toString(),
-                    title: titleController.text,
-                    amount: double.tryParse(amountController.text) ?? 0.0,
-                    date: DateTime.now(),
-                    isIncome: isIncome,
-                  );
+                    double? amount = double.tryParse(amountController.text);
+                    if (amount == null || amount <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please enter a valid amount"),
+                        ),
+                      );
+                      return;
+                    }
 
-                  context.read<ExpenseViewModel>().addTransaction(tx);
-                  Navigator.pop(context);
-                },
+                    // 2. Create Transaction using 'selectedDate' (NOT DateTime.now)
+                    final tx = Transaction(
+                      id: DateTime.now().toString(),
+                      title: titleController.text.trim(),
+                      amount: amount,
+                      date:
+                          selectedDate, // Use the variable from your DatePicker!
+                      isIncome: isIncome,
+                    );
+
+                    // 3. Save and Close
+                    context.read<ExpenseViewModel>().addTransaction(tx);
+                    Navigator.pop(context);
+                  },
 
                 
                 child: const Text("Save Transaction"),

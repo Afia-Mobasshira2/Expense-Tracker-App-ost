@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:expense_tracker_app_ost/models/transaction.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExpenseViewModel extends ChangeNotifier {

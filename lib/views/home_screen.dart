@@ -45,18 +45,15 @@ class HomeScreen extends StatelessWidget {
 
                       // Eye-catching Staggered Animation
                       return TweenAnimationBuilder<double>(
-                        duration: Duration(milliseconds: 400 + (index * 100)),
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        curve: Curves.easeOutQuint,
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(100 * (1 - value), 0),
-                              child: child,
-                            ),
-                          );
-                        },
+                       duration: const Duration(milliseconds: 500),
+                       tween: Tween(begin: 0.8, end: 1.0), // Scales from 80% to 100%
+                       curve: Curves.elasticOut, // This gives it a "bouncy" fun feel!
+                       builder: (context, value, child) {
+                         return Transform.scale(
+                           scale: value,
+                           child: child,
+                         );
+                       },
                         child: Dismissible(
                           key: Key(tx.id),
                           direction: DismissDirection.endToStart,
@@ -214,8 +211,13 @@ class HomeScreen extends StatelessWidget {
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   ),
+                 
+                 
                   onPressed: () {
-                    if (titleController.text.isEmpty || amountController.text.isEmpty) return;
+                   if (titleController.text.isEmpty ||
+                        amountController.text.isEmpty)
+                      return;
+
                     final tx = Transaction(
                       id: DateTime.now().toString(),
                       title: titleController.text,
@@ -223,13 +225,26 @@ class HomeScreen extends StatelessWidget {
                       date: selectedDate,
                       isIncome: isIncome,
                     );
+
                     context.read<ExpenseViewModel>().addTransaction(tx);
                     Navigator.pop(context);
+
+                    // --- THE FUN PART: Animated Success Feedback ---
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text("${tx.title} added successfully!"),
+                        content: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.white),
+                            const SizedBox(width: 10),
+                            Text("${tx.title} added successfully!"),
+                          ],
+                        ),
                         backgroundColor: Colors.green,
                         behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        duration: const Duration(seconds: 2),
                       ),
                     );
                   },

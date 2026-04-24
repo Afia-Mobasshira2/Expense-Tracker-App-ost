@@ -43,8 +43,27 @@ class HomeScreen extends StatelessWidget {
           itemCount: viewModel.transactions.length,
           itemBuilder: (context, index) {
             final tx = viewModel.transactions[index];
-            return ListTile(
-              leading: CircleAvatar(
+           
+           
+
+           //Slidable List Actions
+           return Dismissible(
+                         key: Key(tx.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          color: Colors.redAccent,
+                          child: const Icon(Icons.delete, color: Colors.white),
+                        ),
+                        onDismissed: (direction) {
+                          viewModel.deleteTransaction(tx.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("${tx.title} removed")),
+                          );
+                        },
+                        child: ListTile(
+                          leading: CircleAvatar(
                 backgroundColor: tx.isIncome ? Colors.green[100] : Colors.red[100],
                 child: Icon(
                   tx.isIncome ? Icons.arrow_downward : Icons.arrow_upward,
@@ -117,8 +136,9 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-            );
-           },
+                         )
+                        );
+                  },
            ),
           ),
         ],

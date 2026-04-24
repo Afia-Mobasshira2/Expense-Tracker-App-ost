@@ -29,7 +29,7 @@ class DashboardCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.5),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -71,7 +71,7 @@ TweenAnimationBuilder<double>(
           child: LinearProgressIndicator(
             value: value, // Use the animated 'value' here
             minHeight: 12, // Slightly thicker for a modern look
-            backgroundColor: Colors.white.withOpacity(0.2),
+            backgroundColor: Colors.white.withOpacity(0.8),
             valueColor: AlwaysStoppedAnimation<Color>(
               // Logic: Turns Red if you spend more than you earn
               value >= 1.0 

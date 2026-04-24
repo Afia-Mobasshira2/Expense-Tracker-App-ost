@@ -47,7 +47,17 @@ class HomeScreen extends StatelessWidget {
            
 
                         //Slidable List Actions
-                        return Dismissible(
+                        return TweenAnimationBuilder<double>(
+                       duration: const Duration(milliseconds: 500),
+                       tween: Tween(begin: 0.8, end: 1.0), // Scales from 80% to 100%
+                       curve: Curves.elasticOut, // This gives it a "bouncy" fun feel!
+                       builder: (context, value, child) {
+                         return Transform.scale(
+                           scale: value,
+                           child: child,
+                         );
+                       },
+                        child: Dismissible(
                          key: Key(tx.id),
                         direction: DismissDirection.endToStart,
                         background: Container(
@@ -137,6 +147,7 @@ class HomeScreen extends StatelessWidget {
                           ],
                         ),
                          )
+                        )
                         );
                   },
            ),
@@ -201,7 +212,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 15),
 
               // ---  QUICK TAGS WRAP HERE ---
-                  const Text(
+                const Text(
                 "Quick Tags:",
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
@@ -269,38 +280,42 @@ class HomeScreen extends StatelessWidget {
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
-                onPressed: () {
-                     // 1. Better Validation with SnackBar feedback
-                    if (titleController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Please enter a title")),
-                      );
+               
+               
+                      onPressed: () {
+                   if (titleController.text.isEmpty ||
+                        amountController.text.isEmpty)
                       return;
-                    }
 
-                    double? amount = double.tryParse(amountController.text);
-                    if (amount == null || amount <= 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Please enter a valid amount"),
-                        ),
-                      );
-                      return;
-                    }
-
-                    // 2. Create Transaction using 'selectedDate' (NOT DateTime.now)
                     final tx = Transaction(
                       id: DateTime.now().toString(),
-                      title: titleController.text.trim(),
-                      amount: amount,
-                      date:
-                          selectedDate, // Use the variable from your DatePicker!
+                      title: titleController.text,
+                      amount: double.tryParse(amountController.text) ?? 0.0,
+                      date: selectedDate,
                       isIncome: isIncome,
                     );
 
-                    // 3. Save and Close
                     context.read<ExpenseViewModel>().addTransaction(tx);
                     Navigator.pop(context);
+
+                    // --- THE FUN PART: Animated Success Feedback ---
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.white),
+                            const SizedBox(width: 10),
+                            Text("${tx.title} added successfully!"),
+                          ],
+                        ),
+                        backgroundColor: Colors.green,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
                   },
 
                 

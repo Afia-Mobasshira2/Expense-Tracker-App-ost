@@ -46,8 +46,8 @@ class HomeScreen extends StatelessWidget {
            
            
 
-           //Slidable List Actions
-           return Dismissible(
+                        //Slidable List Actions
+                        return Dismissible(
                          key: Key(tx.id),
                         direction: DismissDirection.endToStart,
                         background: Container(
@@ -197,6 +197,35 @@ class HomeScreen extends StatelessWidget {
               decoration: const InputDecoration(labelText: 'Amount', border: OutlineInputBorder(), prefixText: '\$ '),
               keyboardType: TextInputType.number,
             ),
+
+            const SizedBox(height: 15),
+
+              // ---  QUICK TAGS WRAP HERE ---
+                  const Text(
+                "Quick Tags:",
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: ["Food", "Transport", "Rent", "Salary", "Gift"].map((
+                  tag,
+                ) {
+                  return ActionChip(
+                    label: Text(tag),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.secondaryContainer.withOpacity(0.5),
+                    onPressed: () {
+                      // This line fills the controller when you tap the chip!
+                      titleController.text = tag;
+                    },
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 10),
 
               const SizedBox(height: 10),
               // Add this widget inside the Column
